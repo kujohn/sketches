@@ -1,11 +1,10 @@
 #!/bin/bash
-DIR=$1
+NAME=$1
+DIR=template-p5svg
 
-if [ -z "${DIR}" ]; then
-	DIR=template-p5svg
-	echo "Creating from template-p5svg"
+if [ -z "${NAME}" ]; then
+	NAME=$(superheroes | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
 fi
 
-NAME=$(superheroes | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
 rsync -r ./$DIR/ $NAME
 echo "New Project is ${NAME}"
