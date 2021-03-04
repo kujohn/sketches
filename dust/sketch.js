@@ -1,5 +1,5 @@
-const w = 600;
-const h = 600
+const w = 2000;
+const h = 1500;
 const svg = false;
 const fps = 120;
 const center = new p5.Vector(w/2, h/2)
@@ -71,7 +71,7 @@ class Bouncer {
 
 let balls = []
 function createBalls() {
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 1000; i++) {
     const x = cos(radians(i*36)) * 200;
     const y = sin(radians(i*36)) * 200;
     const c = createVector(center.x + x, center.y + y);
@@ -92,17 +92,18 @@ function mouseClicked() {
 }
 
 function draw() {
+  background(255)
   for (let i = 0; i < balls.length; i++) {
     const ball = balls[i]
 
     // apply wind force
-    const wx = random(0, 0)
-    const wy = random(-0.03, 0.06)
+    const wx = random(-0.03, 0.03)
+    const wy = random(-0.03, 0.03)
     ball.applyForce(createVector(wx, wy))
 
     // apply gravity
-    const g = createVector(0.15, 0.0)
-    ball.applyForce(g)
+    const g = createVector(0, 0.2)
+    // ball.applyForce(g)
     ball.draw()
   }
 }
