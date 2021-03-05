@@ -6,25 +6,35 @@ const fps = 60;
 const filename = `test`;
 
 let domFrames
-let domSave
+let domCapture
+let domCaptureFrames
 
-let capture = 0;
-let captureFrame = capture && 0;
-let captureBuffer;
+let captureStart = 0;
+let captureEnd = 0;
+let captureDuration = 1;
+let captureBuffer = null;
+let capturing = false;
 
 function setup() {
   createCanvas(w, h);
   frameRate(fps);
   domFrames = select("#frames")
-  select('#save').elt.addEventListener('click', () => capture = frameCount + 1);
+  domCapture = select("#capture")
+  domCaptureFrames = select("#userFrames")
+  domCapture.elt.addEventListener('click', () => {
+    captureBuffer = createGraphics(w, h, SVG);
+    captureDuration = parseInt(domCaptureFrames.elt.value);
+    captureStart = frameCount + 1;
+    captureEnd = frameCount + 1 + captureDuration;
+  });
   createBalls();
 }
 
 function draw() {
-  // update captureFrame
-  captureFrame = capture && frameCount === capture;
-  if (captureFrame) {
-    captureBuffer = createGraphics(w, h, SVG);
+  // update capturing
+  capturing = frameCount >= captureStart && frameCount <= captureEnd;
+  if (capturing) {
+    domCapture.elt.innerHTML = captureEnd - frameCount;
   }
 
   // update frame count in dom
@@ -34,8 +44,10 @@ function draw() {
   drawer();
 
   // save
-  if (captureFrame) {
+  if (frameCount === captureEnd) {
     captureBuffer.save(filename);
+    captureBuffer = null;
+    domCapture.elt.innerHTML = "capture"
   }
 }
 
@@ -43,17 +55,9 @@ function draw() {
 /************ START DRAWING ************/
 /***************************************/
 
+let total = 1;
 let balls = []
-function createBalls() {
-  for (let i = 0; i < 200; i++) {
-    const x = cos(radians(i*36)) * 100;
-    const y = sin(radians(i*36)) * 100;
-    const c = createVector(center.x + x, center.y + y);
-    const mass = random(-5, 15);
-    const ball = new Bouncer(c, mass);
-    balls.push(ball)
-  }
-}
+
 function drawer() {
   for (let i = 0; i < balls.length; i++) {
     const ball = balls[i]
@@ -64,10 +68,21 @@ function drawer() {
     ball.applyForce(createVector(wx, wy))
 
     // apply gravity
-    const g = createVector(0, 0.2)
-    // ball.applyForce(g)
+    const g = createVector(0, 0.4)
+    ball.applyForce(g)
     ball.update();
     ball.draw()
+  }
+}
+
+function createBalls() {
+  for (let i = 0; i < total; i++) {
+    const x = cos(radians(i*36)) * 100;
+    const y = sin(radians(i*36)) * 100;
+    const c = createVector(center.x + x, center.y + y);
+    const mass = random(-5, 15);
+    const ball = new Bouncer(c, mass);
+    balls.push(ball)
   }
 }
 class Bouncer {
@@ -112,7 +127,7 @@ class Bouncer {
   draw() {
     const mass = this.mass
     const loc = this.location
-    if (captureFrame) {
+    if (capturing) {
       captureBuffer.ellipse(loc.x, loc.y, mass * 8, mass * 8)
     }
     ellipse(loc.x, loc.y, mass * 8, mass * 8)

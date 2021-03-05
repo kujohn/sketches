@@ -6,38 +6,48 @@ const fps = 60;
 const filename = `test`;
 
 let domFrames
+let domCapture
+let domCaptureFrames
 
-let capture = 0;
-let captureFrame = capture && 0;
-let captureBuffer;
+let captureStart = 0;
+let captureEnd = 0;
+let captureDuration = 1;
+let capturing = false;
+let captureBuffer = null;
 
 function setup() {
   createCanvas(w, h);
   frameRate(fps);
-
   domFrames = select("#frames")
-  select('#save').elt.addEventListener('click', () => capture = frameCount + 1);
+  domCapture = select("#capture")
+  domCaptureFrames = select("#userFrames")
+  domCapture.elt.addEventListener('click', () => {
+    captureBuffer = createGraphics(w, h, SVG);
+    captureDuration = parseInt(domCaptureFrames.elt.value);
+    captureStart = frameCount + 1;
+    captureEnd = frameCount + 1 + captureDuration;
+  });
 }
 
 function draw() {
-  // update frame count in dom
-  domFrames.elt.innerHTML = frameCount
+  // update capturing
+  capturing = frameCount >= captureStart && frameCount <= captureEnd;
 
-  // update captureFrame
-  captureFrame = capture && frameCount === capture;
-
-  // is capturing
-  if (captureFrame) {
-    captureBuffer = createGraphics(w, h, SVG);
+  if (capturing) {
+    domCapture.elt.innerHTML = captureEnd - frameCount;
   }
 
+  // update frame count in dom
+  domFrames.elt.innerHTML = frameCount
 
   // actual drawing;
   drawer();
 
   // save
-  if (captureFrame) {
+  if (frameCount === captureEnd) {
     captureBuffer.save(filename);
+    captureBuffer = null;
+    domCapture.elt.innerHTML = "capture"
   }
 }
 
@@ -47,4 +57,3 @@ function draw() {
 
 function drawer() {
 }
-
