@@ -8,30 +8,24 @@ const filename = `test`;
 let domFrames
 let domSave
 
-let capture = false;
-let captureOn = 0;
+let capture = 0;
 let captureFrame = capture && 0;
 let captureBuffer;
 
 function setup() {
-  pixelDensity(1);
-  captureBuffer = createGraphics(w, h, SVG);
-  pixelDensity(2);
   createCanvas(w, h);
   frameRate(fps);
-
   domFrames = select("#frames")
-  domSave = select('#save')
-  domSave.elt.addEventListener('click', () => {
-    capture = true;
-    captureOn = frameCount + 1
-  });
+  select('#save').elt.addEventListener('click', () => capture = frameCount + 1);
   createBalls();
 }
 
 function draw() {
   // update captureFrame
-  captureFrame = capture && frameCount === captureOn;
+  captureFrame = capture && frameCount === capture;
+  if (captureFrame) {
+    captureBuffer = createGraphics(w, h, SVG);
+  }
 
   // update frame count in dom
   domFrames.elt.innerHTML = frameCount
