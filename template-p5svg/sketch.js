@@ -9,14 +9,14 @@ let domFrames
 let domCapture
 let domCaptureFrames
 
+let capturing = false;
 let captureStart = 0;
 let captureEnd = 0;
 let captureBuffer = null;
-let capturing = false;
+let captureDuration = 100;
 
 let captureAutoStart = false;
-let captureFrom = 0;
-let captureDuration = 100;
+let captureAutoFrom = 0;
 
 function setup() {
   createCanvas(w, h);
@@ -28,8 +28,9 @@ function setup() {
   domCapture.elt.addEventListener('click', () => {
     captureBuffer = createGraphics(w, h, SVG);
     captureDuration = parseInt(domCaptureFrames.elt.value);
-    captureStart = captureFrom + frameCount + 1;
-    captureEnd = captureFrom + frameCount + 1 + captureDuration;
+    const autoStartAdd = captureAutoStart ? captureAutoFrom : 0;
+    captureStart = autoStartAdd + frameCount + 1;
+    captureEnd = autoStartAdd + frameCount + 1 + captureDuration;
   });
   init();
 }
