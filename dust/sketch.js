@@ -1,26 +1,81 @@
-const w = 2000;
-const h = 1500;
-const svg = false;
-const fps = 120;
+const w = 1000;
+const h = 800;
 const center = new p5.Vector(w/2, h/2)
 
+const fps = 60;
+const filename = `test`;
+
+let domFrames
+let domSave
+
+let capture = false;
+let captureOn = 0;
+let captureFrame = capture && 0;
+let captureBuffer;
+
 function setup() {
-  if (svg) {
-    pixelDensity(1)
-    createCanvas(w, h, SVG);
-  } else {
-    createCanvas(w, h);
-  }
+  pixelDensity(1);
+  captureBuffer = createGraphics(w, h, SVG);
+  pixelDensity(2);
+  createCanvas(w, h);
   frameRate(fps);
+
+  domFrames = select("#frames")
+  domSave = select('#save')
+  domSave.elt.addEventListener('click', () => {
+    capture = true;
+    captureOn = frameCount + 1
+  });
   createBalls();
 }
 
-function doubleClicked() {
-  if (svg) {
-    save("test.svg")
+function draw() {
+  // update captureFrame
+  captureFrame = capture && frameCount === captureOn;
+
+  // update frame count in dom
+  domFrames.elt.innerHTML = frameCount
+
+  // actual drawing;
+  drawer();
+
+  // save
+  if (captureFrame) {
+    captureBuffer.save(filename);
   }
 }
 
+/***************************************/
+/************ START DRAWING ************/
+/***************************************/
+
+let balls = []
+function createBalls() {
+  for (let i = 0; i < 200; i++) {
+    const x = cos(radians(i*36)) * 100;
+    const y = sin(radians(i*36)) * 100;
+    const c = createVector(center.x + x, center.y + y);
+    const mass = random(-5, 15);
+    const ball = new Bouncer(c, mass);
+    balls.push(ball)
+  }
+}
+function drawer() {
+  for (let i = 0; i < balls.length; i++) {
+    const ball = balls[i]
+
+    // apply wind force
+    const wx = random(-0.3, 0.3)
+    const wy = random(-0.3, 0.3)
+    ball.applyForce(createVector(wx, wy))
+
+    // apply gravity
+    const g = createVector(0, 0.2)
+    // ball.applyForce(g)
+    ball.update();
+    ball.draw()
+  }
+}
 class Bouncer {
   constructor (start, mass = 0) {
     this.mass = mass;
@@ -61,49 +116,12 @@ class Bouncer {
   }
 
   draw() {
-    this.update();
     const mass = this.mass
     const loc = this.location
+    if (captureFrame) {
+      captureBuffer.ellipse(loc.x, loc.y, mass * 8, mass * 8)
+    }
     ellipse(loc.x, loc.y, mass * 8, mass * 8)
     this.checkEdges();
-  }
-}
-
-let balls = []
-function createBalls() {
-  for (let i = 0; i < 1000; i++) {
-    const x = cos(radians(i*36)) * 200;
-    const y = sin(radians(i*36)) * 200;
-    const c = createVector(center.x + x, center.y + y);
-    const mass = random(1, 20);
-    const ball = new Bouncer(c, mass);
-    balls.push(ball)
-  }
-}
-
-let pause = false;
-function mouseClicked() {
-  pause = !pause;
-  if (pause) {
-    noLoop();
-  } else {
-    loop();
-  }
-}
-
-function draw() {
-  background(255)
-  for (let i = 0; i < balls.length; i++) {
-    const ball = balls[i]
-
-    // apply wind force
-    const wx = random(-0.03, 0.03)
-    const wy = random(-0.03, 0.03)
-    ball.applyForce(createVector(wx, wy))
-
-    // apply gravity
-    const g = createVector(0, 0.2)
-    // ball.applyForce(g)
-    ball.draw()
   }
 }

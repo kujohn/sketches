@@ -1,34 +1,53 @@
-const w = 600;
-const h = 600
-const svg = false;
-const fps = 120;
+const w = 1000;
+const h = 800;
 const center = new p5.Vector(w/2, h/2)
 
-function doubleClicked() {
-  if (svg) {
-    save('test.svg')
-  }
-}
+const fps = 60;
+const filename = `test`;
 
-let pause = false;
-function mouseClicked() {
-  pause = !pause;
-  if (pause) {
-    noLoop();
-  } else {
-    loop();
-  }
-}
+let domFrames
+let domSave
+
+let capture = false;
+let captureOn = 0;
+let captureFrame = capture && 0;
+let captureBuffer;
 
 function setup() {
-  if (svg) {
-    pixelDensity(1)
-    createCanvas(w, h, SVG);
-  } else {
-    createCanvas(w, h);
-  }
   frameRate(fps);
+  pixelDensity(1);
+  captureBuffer = createGraphics(w, h, SVG);
+  pixelDensity(2);
+  createCanvas(w, h);
+
+  domFrames = select("#frames")
+  domSave = select('#save')
+  domSave.elt.addEventListener('click', () => {
+    capture = true;
+    captureOn = frameCount + 1
+  });
 }
 
 function draw() {
+  // update captureFrame
+  captureFrame = capture && frameCount === captureOn;
+
+  // update frame count in dom
+  domFrames.elt.innerHTML = frameCount
+
+  // actual drawing;
+  drawer();
+
+  // save
+  if (captureFrame) {
+    captureBuffer.save(filename);
+  }
 }
+
+/***************************************/
+/************ START DRAWING ************/
+/***************************************/
+
+function drawer() {
+}
+
