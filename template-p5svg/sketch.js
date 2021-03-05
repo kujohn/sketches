@@ -14,7 +14,8 @@ let captureEnd = 0;
 let captureBuffer = null;
 let capturing = false;
 
-let captureImmediately = false;
+let captureAutoStart = false;
+let captureFrom = 0;
 let captureDuration = 100;
 
 function setup() {
@@ -27,17 +28,17 @@ function setup() {
   domCapture.elt.addEventListener('click', () => {
     captureBuffer = createGraphics(w, h, SVG);
     captureDuration = parseInt(domCaptureFrames.elt.value);
-    captureStart = frameCount + 1;
-    captureEnd = frameCount + 1 + captureDuration;
+    captureStart = captureFrom + frameCount + 1;
+    captureEnd = captureFrom + frameCount + 1 + captureDuration;
   });
   init();
 }
 
 function draw() {
   // start capture automatically
-  if (captureImmediately) {
+  if (captureAutoStart) {
     domCapture.elt.click();
-    captureImmediately = false;
+    captureAutoStart = false;
   }
 
   // update capturing

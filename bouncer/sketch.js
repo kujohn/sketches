@@ -2,7 +2,7 @@ const w = 900;
 const h = 700;
 const center = new p5.Vector(w/2, h/2)
 
-const fps = 60;
+const fps = 120;
 const filename = `test`;
 
 let domFrames
@@ -14,7 +14,8 @@ let captureEnd = 0;
 let captureBuffer = null;
 let capturing = false;
 
-let captureImmediately = false;
+let captureImmediately = true;
+let captureImmediatelyFrom = 0;
 let captureDuration = 100;
 
 function setup() {
@@ -27,11 +28,11 @@ function setup() {
   domCapture.elt.addEventListener('click', () => {
     captureBuffer = createGraphics(w, h, SVG);
     captureDuration = parseInt(domCaptureFrames.elt.value);
-    captureStart = frameCount + 1;
-    captureEnd = frameCount + 1 + captureDuration;
+    captureStart = captureImmediatelyFrom + frameCount + 1;
+    captureEnd = captureImmediatelyFrom + frameCount + 1 + captureDuration;
   });
 
-  createBalls();
+  init();
 }
 
 function draw() {
@@ -65,16 +66,27 @@ function draw() {
 /************ START DRAWING ************/
 /***************************************/
 
-let total = 5;
+let total = 20;
 let balls = []
+
+function init() {
+  for (let i = 0; i < total; i++) {
+    const x = cos(radians(i*36)) * 100;
+    const y = sin(radians(i*36)) * 100;
+    const c = createVector(center.x + x, center.y + y);
+    const mass = random(0.1, 2);
+    const ball = new Bouncer(c, mass);
+    balls.push(ball)
+  }
+}
 
 function drawer() {
   for (let i = 0; i < balls.length; i++) {
     const ball = balls[i]
 
     // apply wind force
-    const wx = random(-0.3, 0.3)
-    const wy = random(-0.3, 0.3)
+    const wx = random(-0.5, 0.5)
+    const wy = random(-0.5, 0.5)
     ball.applyForce(createVector(wx, wy))
 
     // apply gravity
@@ -85,16 +97,6 @@ function drawer() {
   }
 }
 
-function createBalls() {
-  for (let i = 0; i < total; i++) {
-    const x = cos(radians(i*36)) * 100;
-    const y = sin(radians(i*36)) * 100;
-    const c = createVector(center.x + x, center.y + y);
-    const mass = random(-5, 15);
-    const ball = new Bouncer(c, mass);
-    balls.push(ball)
-  }
-}
 class Bouncer {
   constructor (start, mass = 0) {
     this.mass = mass;
