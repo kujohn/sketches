@@ -32,7 +32,7 @@ function setup() {
 
 function draw() {
   // update capturing
-  capturing = frameCount >= captureStart && frameCount <= captureEnd;
+  capturing = frameCount >= captureStart && frameCount < captureEnd;
   if (capturing) {
     domCapture.elt.innerHTML = captureEnd - frameCount;
   }
