@@ -3,12 +3,12 @@ const w = 900;
 const h = 700;
 const center = new p5.Vector(w/2, h/2)
 
-const fps = 60;
+const fps = 70;
 const filename = `test`;
 
 let captureAutoStart = false;
 let captureAutoFrom = 0;
-let captureDuration = 100;
+let captureDuration = 1;
 
 
 /***************************************/
@@ -18,7 +18,8 @@ let captureDuration = 100;
 function init() {
 }
 
-function drawer() {
+function drawer(ctx) {
+  ctx.ellipse(mouseX, mouseY, random(10, 30))
 }
 
 /***************************************/
@@ -32,16 +33,26 @@ let domCaptureFrames
 let capturing = false;
 let captureStart = 0;
 let captureEnd = 0;
-let captureBuffer = null;
+let ctxSVG = null;
+let ctx = null;
+
 function setup() {
-  createCanvas(w, h);
-  frameRate(fps);
+  ctx = createGraphics(w, h);
+  ctxSVG = createGraphics(w, h, SVG);
+
+  pixelDensity(2);
+  ctx.pixelDensity(2)
+  ctxSVG.pixelDensity(1)
+
+  frameRate(fps)
+  ctx.frameRate(fps)
+  ctxSVG.frameRate(fps)
+
   domFrames = select("#frames")
   domCaptureFrames = select("#duration")
   domCaptureFrames.elt.value = captureDuration
   domCapture = select("#capture")
   domCapture.elt.addEventListener('click', () => {
-    captureBuffer = createGraphics(w, h, SVG);
     captureDuration = parseInt(domCaptureFrames.elt.value);
     const autoStartAdd = captureAutoStart ? captureAutoFrom : 0;
     captureStart = autoStartAdd + frameCount + 1;
@@ -67,12 +78,12 @@ function draw() {
   domFrames.elt.innerHTML = frameCount
 
   // actual drawing
-  drawer();
+  drawer(ctx);
+  drawer(ctxSVG);
 
   // save
   if (frameCount === captureEnd) {
-    captureBuffer.save(filename);
-    captureBuffer = null;
+    ctxSVG.save(filename);
     domCapture.elt.innerHTML = "capture"
   }
 }

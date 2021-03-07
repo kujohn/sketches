@@ -7,6 +7,14 @@ body {
     margin: 0 auto;
 }
 
+#defaultCanvas0 {
+    display: none !important;
+}
+
+canvas {
+    display: block !important;
+}
+
 #info {
     font-family: monospace;
     font-size: 10px;
