@@ -13,6 +13,7 @@
     "canvas-sketch": "^0.7.4",
     "canvas-sketch-util": "^1.10.0",
     "p5": "^1.2.0",
-    "regl": "^1.7.0"
+    "regl": "^1.7.0",
+    "victor": "^1.1.0"
   }
 }
